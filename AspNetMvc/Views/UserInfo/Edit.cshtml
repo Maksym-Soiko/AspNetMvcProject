@@ -1,0 +1,179 @@
+﻿@model UserInfoForm
+@{
+    ViewData["Title"] = "Редагування інформації про " + Model.Name;
+
+    var i = 0;
+    var list = new SelectList(Model
+        .Professions
+        .Select(x => new { Id = i++, Title = x })
+        .ToList(), "Id", "Title");
+
+    var userSkillForms = ViewData["userSkillForms"] as List<UserSkillForm>;
+    var skills = ViewData["skills"] as List<SkillModel>;
+}
+<div class="max-w-3xl mx-auto p-8 bg-white shadow-lg rounded-2xl mt-10">
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">@ViewData["Title"]</h1>
+
+    <form method="post"
+          enctype="multipart/form-data"
+          asp-controller="UserInfo"
+          asp-action="Edit"
+          asp-route-id="@ViewData["id"]"
+          class="space-y-6">
+        <div>
+            @Html.LabelFor(x => x.Name,
+            new { @class = "block text-sm font-medium text-gray-700 mb-1" })
+            @Html.TextBoxFor(x => x.Name,
+                        new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition" })
+            @Html.ValidationMessageFor(x => x.Name, null, new { @class = "text-red-500 text-sm" })
+        </div>
+
+        <div>
+            @Html.LabelFor(x => x.Age,
+                        new { @class = "block text-sm font-medium text-gray-700 mb-1" })
+            @Html.TextBoxFor(x => x.Age,
+                        new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition", type = "number", min = 0, max = 150, step = 1 })
+            @Html.ValidationMessageFor(x => x.Age, null, new { @class = "text-red-500 text-sm" })
+        </div>
+
+        <div>
+            @Html.LabelFor(x => x.Email,
+                        new { @class = "block text-sm font-medium text-gray-700 mb-1" })
+            @Html.TextBoxFor(x => x.Email,
+                        new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition", type = "email" })
+            @Html.ValidationMessageFor(x => x.Email, null, new { @class = "text-red-500 text-sm" })
+        </div>
+
+        <div>
+            @Html.LabelFor(x => x.ProfessionId,
+                        new { @class = "block text-sm font-medium text-gray-700 mb-1" })
+            @Html.DropDownListFor(x => x.ProfessionId, list,
+                        new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition" })
+            @Html.ValidationMessageFor(x => x.ProfessionId, null, new { @class = "text-red-500 text-sm" })
+        </div>
+
+        <div>
+            @Html.LabelFor(x => x.Description,
+                        new { @class = "block text-sm font-medium text-gray-700 mb-1" })
+            @Html.TextAreaFor(x => x.Description,
+                        new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition", rows = 5 })
+            @Html.ValidationMessageFor(x => x.Description, null, new { @class = "text-red-500 text-sm" })
+        </div>
+
+        <div>
+            @Html.LabelFor(x => x.BirthDate,
+                        new { @class = "block text-sm font-medium text-gray-700 mb-1" })
+            @Html.TextBoxFor(x => x.BirthDate, "{0:yyyy-MM-dd}",
+                        new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition", type = "date" })
+            @Html.ValidationMessageFor(x => x.BirthDate, null, new { @class = "text-red-500 text-sm" })
+        </div>
+
+        <div>
+            @Html.LabelFor(x => x.University,
+                        new { @class = "block text-sm font-medium text-gray-700 mb-1" })
+            @Html.TextBoxFor(x => x.University,
+                        new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition" })
+            @Html.ValidationMessageFor(x => x.University, null, new { @class = "text-red-500 text-sm" })
+        </div>
+
+        <div>
+            @Html.LabelFor(x => x.Specialty,
+                        new { @class = "block text-sm font-medium text-gray-700 mb-1" })
+            @Html.TextBoxFor(x => x.Specialty,
+                        new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition" })
+            @Html.ValidationMessageFor(x => x.Specialty, null, new { @class = "text-red-500 text-sm" })
+        </div>
+
+        <div>
+            @Html.LabelFor(x => x.YearsOfExperience,
+                        new { @class = "block text-sm font-medium text-gray-700 mb-1" })
+            @Html.TextBoxFor(x => x.YearsOfExperience,
+                        new { @class = "w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition", type = "number", min = 0, max = 99, step = 1 })
+            @Html.ValidationMessageFor(x => x.YearsOfExperience, null, new { @class = "text-red-500 text-sm" })
+        </div>
+
+        <div>
+            @Html.LabelFor(x => x.Images, new { @class = "block text-sm font-medium text-gray-700 mb-1" })
+            <input type="file" name="Photos" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition" />
+            @Html.ValidationMessageFor(x => x.Images, null, new { @class = "text-red-500 text-sm" })
+        </div>
+
+        @if (Model.Images != null && Model.Images.Count > 0)
+        {
+            <div class="mt-4">
+                <h3 class="text-lg font-medium text-gray-700 mb-2">Існуючі зображення:</h3>
+                <div class="grid grid-cols-3 gap-4">
+                    @foreach (var image in Model.Images)
+                    {
+                        <div class="relative">
+                            <img src="~/user_info_uploads/@image" class="w-full h-auto rounded-lg shadow-md" />
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="mt-6">
+            <h2 class="text-xl font-bold mb-4">Ваші навички</h2>
+            <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 border-b border-gray-300">Логотип</th>
+                        <th class="px-4 py-2 border-b border-gray-300">Назва</th>
+                        <th class="px-4 py-2 border-b border-gray-300">Рівень</th>
+                        <th class="px-4 py-2 border-b border-gray-300">Вибір</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int idx = 0;
+                    }
+                    @foreach (var item in userSkillForms)
+                    {
+                        var skill = skills.First(x => x.Id == item.SkillId);
+
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 border-b border-gray-300 text-center align-middle">
+                                @if (!string.IsNullOrEmpty(skill.Logo))
+                                {
+                                    <div class="flex justify-center items-center">
+                                        <img src="@Url.Content($"~/{skill.Logo}")" alt="@skill.Title"
+                                             class="img-thumbnail rounded" style="max-width: 50px;">
+                                    </div>
+                                }
+                            </td>
+                            
+                        <td class="px-4 py-2 border-b border-gray-300 font-semibold text-center">@skill.Title</td>
+                            <td class="px-4 py-2 border-b border-gray-300 text-center">
+                                <input type="hidden" name="userSkillForms[@idx].SkillId" value="@item.SkillId">
+                                <input type="number" name="userSkillForms[@idx].Level"
+                                       value="@(item.Selected? item.Level: 1)"
+                                       class="form-control px-2 py-1 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                                       min="1" max="100" step="1">
+                            </td>
+                        <td class="px-4 py-2 border-b border-gray-300 text-center">
+                            <div class="form-check">
+                                @Html.CheckBox($"userSkillForms[{idx}].Selected", item.Selected, new { @class = "form-check-input" })
+                            </div>
+                        </td>
+                    </tr>
+                    idx++; }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-between items-center mt-6">
+            <button type="submit"
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300">
+                Зберегти
+            </button>
+
+            <a asp-controller="UserInfo"
+               asp-action="Index"
+               class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300">
+                Назад
+            </a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,115 @@
+﻿@model List<UserInfoModel>
+
+@{
+    ViewData["Title"] = "Список користувачів";
+    bool hasMainImage = Model.Any(user => !string.IsNullOrEmpty(user.MainImage));
+}
+
+<div class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-2xl mt-10">
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">@ViewData["Title"]</h1>
+
+    <div class="mb-6 border-b border-gray-200">
+        <nav class="flex space-x-4 justify-center">
+            <a asp-controller="UserInfo"
+               asp-action="Index"
+               class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Список користувачів" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
+                Користувачі
+            </a>
+
+            <a asp-controller="Skill"
+               asp-action="Index"
+               class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Список навичок" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
+                Навички
+            </a>
+        </nav>
+    </div>
+
+    <div class="flex justify-end mb-4">
+        <a asp-controller="UserInfo"
+           asp-action="Create"
+           class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
+            Додати
+        </a>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg shadow">
+        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+            <thead class="bg-gray-100 border-b">
+                <tr>
+                    @if (hasMainImage)
+                    {
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                            Головне зображення
+                        </th>
+                    }
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                        Ім'я
+                    </th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                        Вік
+                    </th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                        Професія
+                    </th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                        Дії
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-gray-50 transition">
+                        @if (hasMainImage)
+                        {
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                @if (!string.IsNullOrEmpty(item.MainImage))
+                                {
+                                    <img src="@Url.Content("~/user_info_uploads/" + item.MainImage)" alt="Main Image" class="w-16 h-16 object-cover rounded-full mx-auto">
+                                }
+                                else
+                                {
+                                    <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto flex items-center justify-center text-gray-600">
+                                        Немає
+                                    </div>
+                                }
+                            </td>
+                        }
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-800 font-medium text-center">
+                            @item.Name
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-800 font-medium text-center">
+                            @item.Age
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-800 font-medium text-center">
+                            @item.Profession
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <a asp-controller="UserInfo"
+                               asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-lg shadow-md mr-4 transition duration-300">
+                                Детальніше
+                            </a>
+
+                            <a asp-controller="UserInfo"
+                               asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-lg shadow-md mr-4 transition duration-300">
+                                Редагувати
+                            </a>
+
+                            <form method="post" asp-controller="UserInfo" asp-action="Delete" asp-route-id="@item.Id" class="inline-block">
+                                <button type="submit"
+                                        class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg shadow-md transition duration-300 mt-2">
+                                    Видалити
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

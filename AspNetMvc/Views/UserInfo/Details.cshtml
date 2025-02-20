@@ -1,0 +1,103 @@
+﻿@model AspNetMvc.Models.UserInfoModel
+
+@{
+    ViewData["Title"] = Model.Name;
+    var userSkills = ViewData["UserSkills"] as List<UserSkillModel>;
+    var allSkills = ViewData["Skills"] as List<SkillModel>;
+}
+
+<div class="max-w-3xl mx-auto p-8 bg-white shadow-lg rounded-2xl mt-10">
+    <h1 class="text-4xl font-extrabold text-gray-800 mb-4 text-center">Привіт, @Model.Name!</h1>
+    <h3 class="text-xl text-gray-600 mb-2 text-center">
+        Email:
+        <span class="font-medium text-blue-500">@Model.Email</span>
+    </h3>
+    <div class="text-md text-gray-500 text-center mb-6">
+        ID:
+        <span class="font-semibold">@Model.Id</span>
+    </div>
+    <div class="text-md text-gray-500 text-center mb-6">
+        Професія:
+        <span class="font-semibold">@Model.Profession</span>
+    </div>
+
+    @if (userSkills != null && userSkills.Any())
+    {
+        <div class="mt-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3 text-center">Навички</h2>
+            <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-2 px-4 border-b text-center">Логотип</th>
+                        <th class="py-2 px-4 border-b text-center">Навичка</th>
+                        <th class="py-2 px-4 border-b text-center">Рівень</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var userSkill in userSkills)
+                    {
+                        var skill = allSkills?.FirstOrDefault(s => s.Id == userSkill.Skill.Id);
+                        if (skill != null)
+                        {
+                            <tr>
+                                <td class="py-2 px-4 border-b text-center">
+                                    <div class="flex justify-center">
+                                        <img src="@Url.Content("~/" + skill.Logo)" alt="@skill.Title Logo" class="w-12 h-12 object-cover rounded-full shadow-md">
+                                    </div>
+                                </td>
+                                <td class="py-2 px-4 border-b text-center">@skill.Title</td>
+                                <td class="py-2 px-4 border-b text-center">@userSkill.Level</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="w-full h-16 bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 text-lg font-medium mt-4">
+            Користувач не має навичок
+        </div>
+    }
+
+    @if (Model.Images != null && Model.Images.Count > 0)
+    {
+        <div class="mt-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3 text-center">Фотографії</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                @foreach (var imageUrl in Model.Images)
+                {
+                    <div class="flex flex-col items-center">
+                        <img src="@Url.Content("~/user_info_uploads/" + imageUrl)" alt="User Image" class="w-32 h-32 object-cover rounded-lg shadow-md">
+
+                        @if (Model.MainImage != imageUrl)
+                        {
+                            <form asp-controller="UserInfo" asp-action="SetMainImage" method="post" class="w-full mt-2 flex justify-center">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <input type="hidden" name="imageName" value="@imageUrl" />
+                                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-lg text-sm transition duration-300">
+                                    Зробити головним
+                                </button>
+                            </form>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="w-full h-48 bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 text-lg font-medium">
+            Немає фото
+        </div>
+    }
+
+    <div class="flex justify-center mt-6">
+        <a asp-controller="UserInfo"
+           asp-action="Index"
+           class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300">
+            Назад
+        </a>
+    </div>
+</div>

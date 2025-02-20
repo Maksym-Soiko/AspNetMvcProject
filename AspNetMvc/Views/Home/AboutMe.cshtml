@@ -1,0 +1,150 @@
+﻿@model AspNetMvc.Models.UserInfoModel
+
+@{
+    ViewData["Title"] = "Про мене";
+    var tabs = new[] { "Про мене", "Мої навички", "Мої інтереси", "Контакти" };
+}
+
+<div class="flex flex-col items-center min-h-screen bg-gray-100 p-8 max-w-screen-xl mx-auto">
+    <header class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Привіт! Я @Model.Name</h1>
+        <p class="text-lg text-gray-600">Дізнайтеся більше про мене, мої інтереси та навички у IT технологіях!</p>
+    </header>
+
+    <nav class="tabs flex space-x-4 mb-10">
+        @for (int i = 0; i < tabs.Length; i++)
+        {
+            <button class="tab-button px-6 py-3 rounded-full border text-lg shadow-md transition
+                          @(i == 0 ? "bg-blue-600 text-white border-blue-600" : "bg-gray-200 text-gray-800 border-gray-300 hover:bg-gray-300")"
+                    data-tab="@i">
+                @tabs[i]
+            </button>
+        }
+    </nav>
+
+    <div class="w-full">
+        <section class="tab-section" data-tab="0">
+            <div class="flex flex-col items-center space-y-6">
+                <img src="~/img/my-photo.jpg" alt="Моє фото" class="w-40 h-40 rounded-full shadow-lg" />
+                <div class="text-left max-w-2xl">
+                    <h2 class="text-2xl font-bold mb-4 text-center">Про мене</h2>
+                    <p class="text-lg text-gray-700 mb-1 text-justify indent-4">
+                        Привіт! Мене звати @Model.Name, мені @Model.Age років, і я завжди шукаю нові можливості для розвитку. 
+                        Я вірю, що життя — це постійний процес навчання, відкриття нового та досягнення цілей.
+                    </p>
+                    <p class="text-lg text-gray-700 mb-1 text-justify indent-4">
+                        Наразі я навчаюсь у @Model.University за спеціальністю "@Model.Specialty". 
+                        ІТ-галузь завжди була моєю пристрастю, і я прагну використовувати сучасні технології для вирішення складних задач.
+                    </p>
+                    <p class="text-lg text-gray-700 mb-1 text-justify indent-4">
+                        Крім того, я проходжу навчання в IT Step, де здобуваю важливі практичні навички у сфері програмування.
+                        Це навчання дає мені не тільки фундаментальні знання з ІТ, а й допомагає розвинути навички роботи в команді та впевненість у своїх силах при вирішенні складних технічних задач.
+                    </p>
+                    <p class="text-lg text-gray-700 mb-1 text-justify indent-4">
+                        Вільний час я люблю проводити за подорожами та спілкуванням з цікавими людьми. Я завжди вражений новими культурами та ідеями,
+                        тому кожна подорож для мене — це шанс не лише побачити нові місця, але й познайомитися з різними людьми та їх поглядами на життя.
+                    </p>
+                    <p class="text-lg text-gray-700 mb-1 text-justify indent-4">
+                        Футбол для мене — це не просто спорт, це стиль життя, команда, емоції та непередбачуваність.
+                        Я завжди радий подивитись цікаві матчі та підтримати свою команду, а також люблю грати у футбол у вільний час.
+                    </p>
+                    <p class="text-lg text-gray-700 mb-1 text-justify indent-4">
+                        Автомобілі — це ще одна моя пристрасть.
+                        Мені подобається вивчати нові моделі, пізнавати технічні особливості та історію автомобільної індустрії.
+                        Часто можна побачити мене за кермом, насолоджуючись поїздками та відкриваючи для себе нові маршрути.
+                    </p>
+                    <p class="text-lg text-gray-700 mb-1 text-justify indent-4">
+                        Я вірю, що важливо не тільки досягати успіхів, але й зберігати баланс у житті — підтримувати здоров’я,
+                        мати час для сім’ї та друзів і робити внесок у спільноту.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        @* <section class="tab-section hidden" data-tab="1"> *@
+        @*     <table class="bg-white border border-gray-300 shadow-md rounded-lg mx-auto" style="width: 65%; margin: 0 auto;"> *@
+        @*         <thead> *@
+        @*             <tr class="bg-gray-800 text-white text-sm uppercase tracking-wider"> *@
+        @*                 <th class="py-2 px-4 text-center">Технологія</th> *@
+        @*                 <th class="py-2 px-4 text-center">Прогрес</th> *@
+        @*                 <th class="py-2 px-4 text-center">Відсоток</th> *@
+        @*             </tr> *@
+        @*         </thead> *@
+        @*         <tbody> *@
+        @*             @foreach (var skill in Model.Skills) *@
+        @*             { *@
+        @*                 <tr class="hover:bg-gray-100 transition"> *@
+        @*                     <td class="py-3 px-6 text-center font-semibold">@skill.Name</td> *@
+        @*                     <td class="py-3 px-6"> *@
+        @*                         <div class="w-full bg-gray-200 rounded-full h-4"> *@
+        @*                             <div class="progress-bar h-full rounded-full transition-all duration-500 bg-@skill.ColorOfProgressBar-500" style="width: @skill.Level%;"></div> *@
+        @*                         </div> *@
+        @*                     </td> *@
+        @*                     <td class="py-3 px-6 text-center"> *@
+        @*                         <input type="number" *@
+        @*                                class="percent-input border-2 border-@skill.ColorOfProgressBar-700 rounded-lg text-center text-@skill.ColorOfProgressBar-800 w-20 py-1 font-semibold focus:ring-2 focus:ring-@skill.ColorOfProgressBar-700 focus:outline-none transition duration-300" *@
+        @*                                value="@skill.Level" *@
+        @*                                min="0" *@
+        @*                                max="100" *@
+        @*                                data-index="@Model.Skills.IndexOf(skill)"> *@
+        @*                     </td> *@
+        @*                 </tr> *@
+        @*             } *@
+        @*         </tbody> *@
+        @*     </table> *@
+        @* </section> *@
+
+        <section class="tab-section hidden" data-tab="2">
+            <h2 class="text-2xl font-bold mb-6 text-center">Мої інтереси</h2>
+            <div class="flex flex-wrap justify-center gap-8">
+                <div class="text-center">
+                    <img src="~/img/programming.jpg" alt="Програмування" class="w-36 h-36 rounded-full shadow-md mb-2 transition-transform duration-300 hover:scale-105" />
+                    <p class="font-semibold text-gray-800">Програмування</p>
+                </div>
+                <div class="text-center">
+                    <img src="~/img/car.png" alt="Автомобілі" class="w-36 h-36 rounded-full shadow-md mb-2 transition-transform duration-300 hover:scale-105" />
+                    <p class="font-semibold text-gray-800">Автомобілі</p>
+                </div>
+                <div class="text-center">
+                    <img src="~/img/football.png" alt="Футбол" class="w-36 h-36 rounded-full shadow-md mb-2 transition-transform duration-300 hover:scale-105" />
+                    <p class="font-semibold text-gray-800">Футбол</p>
+                </div>
+                <div class="text-center">
+                    <img src="~/img/travelling.jpeg" alt="Подорожі" class="w-36 h-36 rounded-full shadow-md mb-2 transition-transform duration-300 hover:scale-105" />
+                    <p class="font-semibold text-gray-800">Подорожі</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="tab-section hidden" data-tab="3">
+            <h2 class="text-2xl font-bold mb-4 text-center">Контакти</h2>
+            <p class="text-lg text-gray-700 text-center mb-4">Зв'яжіться зі мною через соціальні мережі:</p>
+            <div class="flex justify-center gap-6">
+                <a href="https://t.me/Maksym_Soiko" 
+                   target="_blank" 
+                   class="w-14 h-14 flex items-center justify-center rounded-full bg-blue-500 text-white text-xl shadow-md hover:bg-blue-600 transition">
+                   <i class="fab fa-telegram"></i>
+                </a>
+                <a href="https://www.instagram.com/maksym_soiko" 
+                    target="_blank" 
+                    class="w-14 h-14 flex items-center justify-center rounded-full bg-pink-500 text-white text-xl shadow-md hover:bg-pink-600 transition">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://www.facebook.com/maksym.soiko/" 
+                    target="_blank" 
+                    class="w-14 h-14 flex items-center justify-center rounded-full bg-blue-700 text-white text-xl shadow-md hover:bg-blue-800 transition">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://github.com/Maksym-Soiko" 
+                    target="_blank" 
+                    class="w-14 h-14 flex items-center justify-center rounded-full bg-gray-800 text-white text-xl shadow-md hover:bg-gray-900 transition">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <footer class="mt-12 text-gray-600 text-center">
+        <p>&copy; 2025. Всі права захищені.</p>
+    </footer>
+</div>
