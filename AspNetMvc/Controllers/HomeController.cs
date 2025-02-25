@@ -1,38 +1,62 @@
-using Microsoft.AspNetCore.Mvc;
 using AspNetMvc.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+
 namespace AspNetMvc.Controllers;
 
-    public class HomeController(ILogger<HomeController> logger) : Controller
+public class HomeController(
+        ILogger<HomeController> logger,
+        SiteContext context) : Controller
+{
+
+    public IActionResult Index()
     {
-        public IActionResult AboutMe()
-        {
-            var aboutMeModel = new UserInfoModel
-            {
-                Name = "Максим",
-                Age = 21,
-                University = "Хмельницький національний університет",
-                Specialty = "Комп'ютерна інженерія",
-                //Skills =
-                //[
-                //    new SkillModel { Title = "HTML", Color = "orange" },
-                //    new SkillModel { Title = "CSS", Color = "blue" },
-                //    new SkillModel { Title = "JavaScript", Color = "yellow" },
-                //    new SkillModel { Title = "Vue.js", Color = "emerald" },
-                //    new SkillModel { Title = "Python", Color = "indigo" },
-                //    new SkillModel { Title = "C++", Color = "blue" },
-                //    new SkillModel { Title = "C#", Color = "purple" },
-                //    new SkillModel { Title = "ASP.NET Core", Color = "sky" },
-                //    new SkillModel { Title = "SQL", Color = "teal" }
-                //]
-            };
+        var users = context.UserInfos
+            .Include(x => x.UserSkills)
+            .ThenInclude(x => x.Skill)
+            .ToList();
 
-            return View(aboutMeModel);
-        }
+        ViewBag.Professions = context.UserInfos.Select(u => u.Profession).Distinct().ToList();
+        ViewBag.Skills = context.Skills.Select(s => s.Title).ToList();
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        return View(users);
     }
+
+    [HttpGet]
+    public IActionResult Search(string text, string[] professions, string[] skills)
+    {
+        var users = context.UserInfos
+            .Include(x => x.UserSkills)
+            .ThenInclude(x => x.Skill)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(text))
+        {
+            users = users.Where(u => u.Name.Contains(text));
+        }
+
+        if (professions != null && professions.Length > 0)
+        {
+            users = users.Where(u => professions.Contains(u.Profession));
+        }
+
+        if (skills != null && skills.Length > 0)
+        {
+            users = users.Where(u => skills.All(skill => u.UserSkills.Any(us => us.Skill.Title == skill)));
+        }
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            return PartialView("_UserList", users.ToList());
+        }
+
+        return View("Index", users.ToList());
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+}

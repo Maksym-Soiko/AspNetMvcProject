@@ -11,6 +11,12 @@
 
     <div class="mb-6 border-b border-gray-200">
         <nav class="flex space-x-4 justify-center">
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Головна сторінка" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
+                Сторінка пошуку
+            </a>
+
             <a asp-controller="UserInfo"
                asp-action="Index"
                class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Список користувачів" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
