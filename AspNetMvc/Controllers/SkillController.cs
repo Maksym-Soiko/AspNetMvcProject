@@ -2,14 +2,20 @@
 using AspNetMvc.Models;
 using Microsoft.AspNetCore.Mvc;
 using AspNetMvc.Services;
+using Microsoft.AspNetCore.Authorization;
+
+namespace AspNetMvc.Controllers;
 
 public class SkillController(
-    ILogger<SkillModel> logger, 
+    ILogger<SkillModel> logger,
     SiteContext context,
     FileStorageService fileStorageService) : Controller
 {
     public IActionResult Index()
     {
+        var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
+        ViewBag.CurrentUserEmail = currentUserEmail;
+
         return View(context.Skills.ToList());
     }
 
@@ -18,12 +24,14 @@ public class SkillController(
         return View(context.Skills.First(x => x.Id == id));
     }
 
+    [Authorize]
     [HttpGet]
     public IActionResult Create()
     {
         return View(new SkillForm());
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromForm] SkillForm form, IFormFile? Logo)
     {
@@ -46,6 +54,7 @@ public class SkillController(
         return RedirectToAction("Index");
     }
 
+    [Authorize]
     [HttpGet]
     public IActionResult Edit(Guid id)
     {
@@ -61,6 +70,7 @@ public class SkillController(
         return View(form);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Edit(Guid id, [FromForm] SkillForm form, IFormFile? Logo)
     {
@@ -90,6 +100,7 @@ public class SkillController(
         return View(form);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -102,7 +113,7 @@ public class SkillController(
 
         if (!string.IsNullOrEmpty(model.Logo))
         {
-           fileStorageService.DeleteFile(model.Logo);
+            fileStorageService.DeleteFile(model.Logo);
         }
 
         context.Skills.Remove(model);

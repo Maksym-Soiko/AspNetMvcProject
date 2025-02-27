@@ -12,6 +12,9 @@ public class HomeController(
 
     public IActionResult Index()
     {
+        var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
+        ViewBag.CurrentUserEmail = currentUserEmail;
+
         var users = context.UserInfos
             .Include(x => x.UserSkills)
             .ThenInclude(x => x.Skill)

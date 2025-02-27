@@ -5,9 +5,37 @@
     bool hasMainImage = Model.Any(user => !string.IsNullOrEmpty(user.MainImage));
 }
 
-<div class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-2xl mt-10">
-
+<div class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-2xl mt-10 relative">
     <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">@ViewData["Title"]</h1>
+
+    <div class="flex justify-end items-center mb-4">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <span class="text-sm font-medium text-gray-700 mr-4">@ViewBag.CurrentUserEmail</span>
+            <form id="logoutForm" method="post" asp-area="Auth" asp-controller="Account" asp-action="Logout" class="inline">
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300">
+                    Вийти
+                </button>
+            </form>
+        }
+        else
+        {
+            <button id="userMenuBtn" class="bg-gray-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-600">
+                <i class="fas fa-user"></i>
+            </button>
+
+            <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                <a asp-area="Auth" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path"
+                   class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+                    Увійти
+                </a>
+                <a asp-area="Auth" asp-controller="Account" asp-action="Register" asp-route-returnUrl="@Context.Request.Path"
+                   class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+                    Зареєструватися
+                </a>
+            </div>
+        }
+    </div>
 
     <div class="mb-6 border-b border-gray-200">
         <nav class="flex space-x-4 justify-center">
@@ -32,11 +60,14 @@
     </div>
 
     <div class="flex justify-end mb-4">
-        <a asp-controller="UserInfo"
-           asp-action="Create"
-           class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
-            Додати
-        </a>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-controller="UserInfo"
+               asp-action="Create"
+               class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
+                Додати
+            </a>
+        }
     </div>
 
     <div class="overflow-x-auto rounded-lg shadow">
@@ -99,19 +130,22 @@
                                 Детальніше
                             </a>
 
-                            <a asp-controller="UserInfo"
-                               asp-action="Edit"
-                               asp-route-id="@item.Id"
-                               class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-lg shadow-md mr-4 transition duration-300">
-                                Редагувати
-                            </a>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <a asp-controller="UserInfo"
+                                   asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-lg shadow-md mr-4 transition duration-300">
+                                    Редагувати
+                                </a>
 
-                            <form method="post" asp-controller="UserInfo" asp-action="Delete" asp-route-id="@item.Id" class="inline-block">
-                                <button type="submit"
-                                        class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg shadow-md transition duration-300 mt-2">
-                                    Видалити
-                                </button>
-                            </form>
+                                <form method="post" asp-controller="UserInfo" asp-action="Delete" asp-route-id="@item.Id" class="inline-block">
+                                    <button type="submit"
+                                            class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg shadow-md transition duration-300 mt-2">
+                                        Видалити
+                                    </button>
+                                </form>
+                            }
                         </td>
                     </tr>
                 }
@@ -119,3 +153,12 @@
         </table>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+            document.getElementById("userMenuBtn").addEventListener("click", function() {
+            var menu = document.getElementById("userMenu");
+            menu.classList.toggle("hidden");
+        });
+    </script>
+}

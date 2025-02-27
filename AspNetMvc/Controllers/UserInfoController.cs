@@ -1,6 +1,7 @@
 ﻿using AspNetMvc.Models;
 using AspNetMvc.Models.Forms;
 using AspNetMvc.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,9 @@ namespace AspNetMvc.Controllers
     {
         public IActionResult Index()
         {
+            var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
+            ViewBag.CurrentUserEmail = currentUserEmail;
+
             return View(context
                 .UserInfos
                 .Include(x => x.UserSkills)
@@ -43,6 +47,7 @@ namespace AspNetMvc.Controllers
             return View(model);
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult Create()
         {
@@ -51,6 +56,7 @@ namespace AspNetMvc.Controllers
             return View(model);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] UserInfoForm form, IFormFile[]? Photos, Dictionary<Guid, int> selectedSkills)
         {
@@ -86,6 +92,7 @@ namespace AspNetMvc.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult Edit(Guid id)
         {
@@ -112,6 +119,7 @@ namespace AspNetMvc.Controllers
             return View(form);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Edit(Guid id, [FromForm] UserInfoForm form, [FromForm] List<UserSkillForm>? userSkillForms, IFormFile[]? Photos)
         {
@@ -177,6 +185,7 @@ namespace AspNetMvc.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -202,6 +211,7 @@ namespace AspNetMvc.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> SetMainImage(Guid id, string imageName)
         {
@@ -217,6 +227,7 @@ namespace AspNetMvc.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> UpdateSkills(Guid userId, Dictionary<Guid, int> selectedSkills)
         {
