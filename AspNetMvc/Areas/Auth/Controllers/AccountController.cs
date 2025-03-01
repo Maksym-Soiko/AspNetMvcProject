@@ -2,6 +2,7 @@
 using AspNetMvc.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AspNetMvc.Areas.Auth.Controllers;
 
@@ -48,7 +49,12 @@ public class AccountController(
             return View(form);
         }
 
-        await signInManager.SignInAsync(user, isPersistent: false);
+        await signInManager.SignInWithClaimsAsync(user, true,
+        [
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim("Avatar", user.ProfileImage ?? "")
+        ]);
 
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
         {
@@ -88,7 +94,12 @@ public class AccountController(
             return View(form);
         }
 
-        await signInManager.SignInAsync(user, isPersistent: false);
+        await signInManager.SignInWithClaimsAsync(user, true,
+        [
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim("Avatar", user.ProfileImage ?? "")
+        ]);
 
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
         {
