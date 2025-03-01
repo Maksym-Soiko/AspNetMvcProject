@@ -33,10 +33,28 @@ public class FileStorageService(IWebHostEnvironment environment)
 
     public void DeleteFile(string relativePath)
     {
-        var fullFilename = Path.Combine(environment.WebRootPath, relativePath);
+        if (string.IsNullOrEmpty(relativePath))
+        {
+            Console.WriteLine("Помилка: Шлях до файлу порожній.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(environment.WebRootPath))
+        {
+            throw new InvalidOperationException("WebRootPath не ініціалізований.");
+        }
+
+        var fullFilename = Path.Combine(environment.WebRootPath, relativePath.Trim());
+        Console.WriteLine($"Шлях до файлу: {fullFilename}");
+
         if (File.Exists(fullFilename))
         {
             File.Delete(fullFilename);
+            Console.WriteLine("Файл видалено.");
+        }
+        else
+        {
+            Console.WriteLine("Файл не знайдено.");
         }
     }
 
