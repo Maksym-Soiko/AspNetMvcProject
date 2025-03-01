@@ -16,6 +16,9 @@ public class SkillController(
         var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
         ViewBag.CurrentUserEmail = currentUserEmail;
 
+        var avatarSrc = User.Claims.FirstOrDefault(x => x.Type == "Avatar")?.Value ?? "";
+        ViewBag.AvatarSrc = avatarSrc;
+
         return View(context.Skills.ToList());
     }
 
