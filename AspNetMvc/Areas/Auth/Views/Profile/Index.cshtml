@@ -1,0 +1,123 @@
+﻿@model User
+@{
+    ViewData["Title"] = "Профіль";
+}
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<div class="flex flex-col items-center p-6 bg-white shadow-lg rounded-2xl max-w-md mx-auto">
+    @if (!string.IsNullOrEmpty(Model.ProfileImage))
+    {
+        <img src="@Url.Content("~/" + Model.ProfileImage)" class="w-32 h-32 rounded-full shadow-md" alt="Аватарка користувача">
+    }
+    else
+    {
+        <img src="~/images/default-avatar.png" class="w-32 h-32 rounded-full shadow-md" alt="Аватарка за замовчуванням">
+    }
+
+    <h2 class="text-xl font-semibold mt-4">@Model.FullName</h2>
+    <p class="text-gray-600"><strong>Email:</strong> @Model.Email</p>
+    <p class="text-gray-600"><strong>Телефон:</strong> @Model.PhoneNumber</p>
+
+    <div class="flex flex-col w-full mt-6 space-y-3">
+        <a asp-area="Auth" asp-controller="Profile" asp-action="Edit"
+           class="w-full px-4 py-2 bg-green-500 text-white text-center rounded-lg shadow hover:bg-green-600 transition">
+            Редагувати профіль
+        </a>
+
+        <a asp-area="Auth" asp-controller="Profile" asp-action="ChangePassword"
+           class="w-full px-4 py-2 bg-red-500 text-white text-center rounded-lg shadow hover:bg-red-600 transition">
+            Змінити пароль
+        </a>
+
+        <button class="delete-account w-full px-4 py-2 bg-gray-700 text-white text-center rounded-lg shadow hover:bg-gray-800 transition">
+            Видалити акаунт
+        </button>
+
+        <a asp-area="" asp-controller="Home" asp-action="Index"
+           class="w-full px-4 py-2 bg-blue-500 text-white text-center rounded-lg shadow hover:bg-blue-600 transition">
+            Повернутись
+        </a>
+    </div>
+</div>
+
+<style>
+    .swal2-popup-custom {
+        border-radius: 15px;
+        padding: 20px;
+    }
+
+    .swal2-title-custom {
+        font-size: 20px;
+        font-weight: bold;
+        color: #dc2626;
+    }
+
+    .swal2-confirm-button-custom {
+        background-color: #dc2626 !important;
+        color: white !important;
+        font-weight: bold;
+        border-radius: 8px;
+    }
+
+    .swal2-cancel-button-custom {
+        background-color: #6b7280 !important;
+        color: white !important;
+        font-weight: bold;
+        border-radius: 8px;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.querySelector('.delete-account').addEventListener('click', function () {
+            Swal.fire({
+                title: "Ви впевнені?",
+                text: "Цю дію неможливо скасувати! Весь ваш обліковий запис буде видалено.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#dc2626",
+                cancelButtonColor: "#6b7280",
+                confirmButtonText: "Так, видалити!",
+                cancelButtonText: "Скасувати",
+                reverseButtons: true,
+                showLoaderOnConfirm: true,
+                customClass: {
+                    popup: 'swal2-popup-custom',
+                    title: 'swal2-title-custom',
+                    confirmButton: 'swal2-confirm-button-custom',
+                    cancelButton: 'swal2-cancel-button-custom'
+                },
+                preConfirm: () => {
+                    return fetch('@Url.Action("Delete", "Profile", new { Area = "Auth" })', {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }).then(response => {
+                        if (!response.ok) {
+                            throw new Error("Помилка при видаленні акаунта");
+                        }
+                        return response.json();
+                    }).catch(error => {
+                        Swal.showValidationMessage(error.message);
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Видалено!",
+                        text: "Ваш акаунт успішно видалено.",
+                        icon: "success",
+                        timer: 2500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = '@Url.Action("Register", "Account", new { Area = "Auth" })';
+                    });
+                }
+            });
+        });
+    </script>
+}
