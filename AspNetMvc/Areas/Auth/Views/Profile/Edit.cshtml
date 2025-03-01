@@ -1,0 +1,40 @@
+﻿@model ProfileForm
+@{
+    ViewData["Title"] = "Редагування профілю";
+}
+
+<div class="flex justify-center mt-8">
+    <div class="bg-white shadow-xl rounded-3xl p-8 w-full max-w-2xl">
+
+        <form method="post" enctype="multipart/form-data" asp-area="Auth" asp-controller="Profile" asp-action="Edit">
+
+            <div class="mb-8">
+                <label class="block text-sm font-medium text-gray-700">Завантажити фото</label>
+                <input asp-for="ProfileImage" class="mt-2 block w-full px-4 py-2 border border-gray-300 shadow-sm rounded-lg focus:ring-blue-500 focus:border-blue-500" type="file" accept="image/*">
+                @Html.ValidationMessageFor(x => x.ProfileImage, null, new { @class = "text-red-500 text-sm" })
+            </div>
+
+            <div class="mb-6">
+                <label for="FullName" class="block text-sm font-medium text-gray-700">Ім'я</label>
+                <input asp-for="FullName" class="mt-2 block w-full px-4 py-2 border border-gray-300 shadow-sm rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                @Html.ValidationMessageFor(x => x.FullName, null, new { @class = "text-red-500 text-sm" })
+            </div>
+
+            <div class="mb-6">
+                <label for="PhoneNumber" class="block text-sm font-medium text-gray-700">Телефон</label>
+                <input asp-for="PhoneNumber" class="mt-2 block w-full px-4 py-2 border border-gray-300 shadow-sm rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                @Html.ValidationMessageFor(x => x.PhoneNumber, null, new { @class = "text-red-500 text-sm" })
+            </div>
+
+            <div class="flex gap-4 mt-6">
+                <button type="submit" class="w-full py-2 px-4 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition duration-200">
+                    Зберегти
+                </button>
+                <a asp-area="Auth" asp-controller="Profile" asp-action="Index"
+                   class="w-full py-2 px-4 bg-gray-400 text-white rounded-lg shadow hover:bg-gray-500 transition duration-200 text-center">
+                    Повернутись
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
