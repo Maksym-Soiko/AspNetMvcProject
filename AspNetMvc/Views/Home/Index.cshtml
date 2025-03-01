@@ -1,147 +1,159 @@
 ﻿@model List<UserInfoModel>
-
 @{
-	ViewData["Title"] = "Сторінка пошуку";
+    ViewData["Title"] = "Сторінка пошуку";
+    var avatarSrc = ViewBag.AvatarSrc as string ?? "";
 }
-
 <div class="max-w-5xl mx-auto p-6 bg-white shadow-lg rounded-2xl mt-10">
-	<h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">@ViewData["Title"]</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">@ViewData["Title"]</h1>
 
-	<div class="flex justify-end items-center mb-4 relative">
-		@if (User.Identity.IsAuthenticated)
-		{
-			<span class="text-sm font-medium text-gray-700 mr-4">@ViewBag.CurrentUserEmail</span>
-			<form id="logoutForm" method="post" asp-area="Auth" asp-controller="Account" asp-action="Logout" class="inline">
-				<button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300">
-					Вийти
-				</button>
-			</form>
-		}
-		else
-		{
-			<button id="userMenuBtn" class="bg-gray-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-600">
-				<i class="fas fa-user"></i>
-			</button>
+    <div class="flex justify-end items-center mb-4 relative">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <span class="text-sm font-medium text-gray-700 mr-4">@ViewBag.CurrentUserEmail</span>
+            <button id="userMenuBtn" class="bg-gray-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-600">
+                @if (!string.IsNullOrEmpty(avatarSrc))
+                {
+                    <img src="@avatarSrc" alt="Аватар" class="w-12 h-12 rounded-full object-cover cursor-pointer" id="avatarImage" />
+                }
+            </button>
 
-			<div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-				<a asp-area="Auth" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path"
-				   class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
-					Увійти
-				</a>
-				<a asp-area="Auth" asp-controller="Account" asp-action="Register" asp-route-returnUrl="@Context.Request.Path"
-				   class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
-					Зареєструватися
-				</a>
-			</div>
-		}
-	</div>
+            <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                <a asp-area="Auth" asp-controller="Profile" asp-action="Index"
+                   class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+                    Профіль
+                </a>
+                <form id="logoutForm" method="post" asp-area="Auth" asp-controller="Account" asp-action="Logout">
+                    <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+                        Вийти
+                    </button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <button id="userMenuBtn" class="bg-gray-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-600">
+                <i class="fas fa-user"></i>
+            </button>
 
-	<div class="mb-6 border-b border-gray-200">
-		<nav class="flex space-x-4 justify-center">
-			<a asp-controller="Home"
-			   asp-action="Index"
-			   class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Сторінка пошуку" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
-				Сторінка пошуку
-			</a>
+            <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                <a asp-area="Auth" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path"
+                   class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+                    Увійти
+                </a>
+                <a asp-area="Auth" asp-controller="Account" asp-action="Register" asp-route-returnUrl="@Context.Request.Path"
+                   class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+                    Зареєструватися
+                </a>
+            </div>
+        }
+    </div>
 
-			<a asp-controller="UserInfo"
-			   asp-action="Index"
-			   class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Список користувачів" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
-				Користувачі
-			</a>
+    <div class="mb-6 border-b border-gray-200">
+        <nav class="flex space-x-4 justify-center">
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Сторінка пошуку" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
+                Сторінка пошуку
+            </a>
 
-			<a asp-controller="Skill"
-			   asp-action="Index"
-			   class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Список навичок" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
-				Навички
-			</a>
-		</nav>
-	</div>
+            <a asp-controller="UserInfo"
+               asp-action="Index"
+               class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Список користувачів" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
+                Користувачі
+            </a>
 
-	<form id="searchForm" method="get" asp-controller="Home" asp-action="Search" class="mb-6">
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-			<div class="col-span-1">
-				<input type="text" name="text" placeholder="Пошук по імені..." class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition duration-200 ease-in-out w-full">
-			</div>
+            <a asp-controller="Skill"
+               asp-action="Index"
+               class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Список навичок" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
+                Навички
+            </a>
+        </nav>
+    </div>
 
-			<div class="relative flex flex-col">
-				<select name="professions" multiple class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition duration-200 ease-in-out w-full" id="professionsSelect">
-					@foreach (var profession in ViewBag.Professions)
-					{
-						<option value="@profession">@profession</option>
-					}
-				</select>
-				<button type="button" id="resetProfessions" class="text-xs text-gray-600 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 rounded-full bg-white border border-gray-300 p-1 mt-1 w-6 h-6 flex items-center justify-center">
-					❌
-				</button>
-			</div>
+    <form id="searchForm" method="get" asp-controller="Home" asp-action="Search" class="mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="col-span-1">
+                <input type="text" name="text" placeholder="Пошук по імені..." class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition duration-200 ease-in-out w-full">
+            </div>
 
-			<div class="relative flex flex-col">
-				<select name="skills" multiple class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring focus:ring-red-300 focus:border-red-500 transition duration-200 ease-in-out w-full" id="skillsSelect">
-					@foreach (var skill in ViewBag.Skills)
-					{
-						<option value="@skill">@skill</option>
-					}
-				</select>
-				<button type="button" id="resetSkills" class="text-xs text-gray-600 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-full bg-white border border-gray-300 p-1 mt-1 w-6 h-6 flex items-center justify-center">
-					❌
-				</button>
-			</div>
-		</div>
+            <div class="relative flex flex-col">
+                <select name="professions" multiple class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring focus:ring-blue-300 focus:border-blue-500 transition duration-200 ease-in-out w-full" id="professionsSelect">
+                    @foreach (var profession in ViewBag.Professions)
+                    {
+                        <option value="@profession">@profession</option>
+                    }
+                </select>
+                <button type="button" id="resetProfessions" class="text-xs text-gray-600 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 rounded-full bg-white border border-gray-300 p-1 mt-1 w-6 h-6 flex items-center justify-center">
+                    ❌
+                </button>
+            </div>
 
-		<div class="flex justify-end mt-4">
-			<button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300">
-				Пошук
-			</button>
-		</div>
-	</form>
+            <div class="relative flex flex-col">
+                <select name="skills" multiple class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring focus:ring-red-300 focus:border-red-500 transition duration-200 ease-in-out w-full" id="skillsSelect">
+                    @foreach (var skill in ViewBag.Skills)
+                    {
+                        <option value="@skill">@skill</option>
+                    }
+                </select>
+                <button type="button" id="resetSkills" class="text-xs text-gray-600 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-full bg-white border border-gray-300 p-1 mt-1 w-6 h-6 flex items-center justify-center">
+                    ❌
+                </button>
+            </div>
+        </div>
 
-	<div id="searchResults" class="flex justify-center">
-		@await Html.PartialAsync("_UserList", Model)
-	</div>
+        <div class="flex justify-end mt-4">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300">
+                Пошук
+            </button>
+        </div>
+    </form>
+
+    <div id="searchResults" class="flex justify-center">
+        @await Html.PartialAsync("_UserList", Model)
+    </div>
 </div>
 
 @section Scripts {
-	<script>
-			document.getElementById("searchForm").addEventListener("submit", function (event) {
-			event.preventDefault();
-			let formData = new FormData(this);
+    <script>
+        document.getElementById("searchForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            let formData = new FormData(this);
 
-			fetch(this.action + '?' + new URLSearchParams(formData), {
-				method: 'GET',
-				headers: { 'X-Requested-With': 'XMLHttpRequest' }
-			})
-			.then(response => response.text())
-			.then(html => {
-				document.getElementById("searchResults").innerHTML = html;
-			});
-		});
+            fetch(this.action + '?' + new URLSearchParams(formData), {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("searchResults").innerHTML = html;
+            });
+        });
 
-		document.getElementById("resetProfessions").addEventListener("click", function() {
-			let professionsSelect = document.getElementById("professionsSelect");
-			for (let option of professionsSelect.options) {
-				option.selected = false;
-			}
-		});
+        document.getElementById("resetProfessions").addEventListener("click", function() {
+            let professionsSelect = document.getElementById("professionsSelect");
+            for (let option of professionsSelect.options) {
+                option.selected = false;
+            }
+        });
 
-		document.getElementById("resetSkills").addEventListener("click", function() {
-			let skillsSelect = document.getElementById("skillsSelect");
-			for (let option of skillsSelect.options) {
-				option.selected = false;
-			}
-		});
+        document.getElementById("resetSkills").addEventListener("click", function() {
+            let skillsSelect = document.getElementById("skillsSelect");
+            for (let option of skillsSelect.options) {
+                option.selected = false;
+            }
+        });
 
-		window.addEventListener("click", function(event) {
-			var menu = document.getElementById("userMenu");
-			var button = document.getElementById("userMenuBtn");
-			if (!button.contains(event.target) && !menu.contains(event.target)) {
-				menu.classList.add("hidden");
-			}
-		});
+         document.getElementById("userMenuBtn").addEventListener("click", function() {
+            var menu = document.getElementById("userMenu");
+            menu.classList.toggle("hidden");
+        });
 
-			document.getElementById("userMenuBtn").addEventListener("click", function() {
-			var menu = document.getElementById("userMenu");
-			menu.classList.toggle("hidden");
-		});
-	</script>
+        window.addEventListener("click", function(event) {
+            var menu = document.getElementById("userMenu");
+            var button = document.getElementById("userMenuBtn");
+            if (!button.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.add("hidden");
+            }
+        });
+    </script>
 }
