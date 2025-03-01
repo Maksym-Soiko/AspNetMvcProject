@@ -3,20 +3,34 @@
 @{
     ViewData["Title"] = "Список користувачів";
     bool hasMainImage = Model.Any(user => !string.IsNullOrEmpty(user.MainImage));
+    var avatarSrc = ViewBag.AvatarSrc as string ?? "";
 }
 
 <div class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-2xl mt-10 relative">
     <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">@ViewData["Title"]</h1>
 
-    <div class="flex justify-end items-center mb-4">
+    <div class="flex justify-end items-center mb-4 relative">
         @if (User.Identity.IsAuthenticated)
         {
             <span class="text-sm font-medium text-gray-700 mr-4">@ViewBag.CurrentUserEmail</span>
-            <form id="logoutForm" method="post" asp-area="Auth" asp-controller="Account" asp-action="Logout" class="inline">
-                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300">
-                    Вийти
-                </button>
-            </form>
+            <button id="userMenuBtn" class="bg-gray-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-600">
+                @if (!string.IsNullOrEmpty(avatarSrc))
+                {
+                    <img src="@avatarSrc" alt="Аватар" class="w-12 h-12 rounded-full object-cover cursor-pointer" id="avatarImage" />
+                }
+            </button>
+
+            <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                <a asp-area="Auth" asp-controller="Profile" asp-action="Index"
+                   class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+                    Профіль
+                </a>
+                <form id="logoutForm" method="post" asp-area="Auth" asp-controller="Account" asp-action="Logout">
+                    <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+                        Вийти
+                    </button>
+                </form>
+            </div>
         }
         else
         {
