@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 namespace AspNetMvc.Controllers
 {
     public class UserInfoController(
-        ILogger<UserInfoController> logger, 
-        SiteContext context, 
-        FileStorageService fileStorage, 
+        ILogger<UserInfoController> logger,
+        SiteContext context,
+        FileStorageService fileStorage,
         UserSkillService userSkillService) : Controller
 
     {
@@ -18,6 +18,9 @@ namespace AspNetMvc.Controllers
         {
             var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
             ViewBag.CurrentUserEmail = currentUserEmail;
+
+            var avatarSrc = User.Claims.FirstOrDefault(x => x.Type == "Avatar")?.Value ?? "";
+            ViewBag.AvatarSrc = avatarSrc;
 
             return View(context
                 .UserInfos
