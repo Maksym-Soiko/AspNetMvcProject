@@ -9,11 +9,13 @@ public class HomeController(
         ILogger<HomeController> logger,
         SiteContext context) : Controller
 {
-
     public IActionResult Index()
     {
         var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
         ViewBag.CurrentUserEmail = currentUserEmail;
+
+        var avatarSrc = User.Claims.FirstOrDefault(x => x.Type == "Avatar")?.Value ?? "";
+        ViewBag.AvatarSrc = avatarSrc;
 
         var users = context.UserInfos
             .Include(x => x.UserSkills)
