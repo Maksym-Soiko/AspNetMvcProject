@@ -97,10 +97,12 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     }).then(response => {
-                        if (!response.ok) {
-                            throw new Error("Помилка при видаленні акаунта");
-                        }
-                        return response.json();
+                        return response.json().then(data => {
+                            if (!response.ok || !data.success) {
+                                throw new Error(data.message || "Помилка при видаленні акаунта");
+                            }
+                            return data;
+                        });
                     }).catch(error => {
                         Swal.showValidationMessage(error.message);
                     });
