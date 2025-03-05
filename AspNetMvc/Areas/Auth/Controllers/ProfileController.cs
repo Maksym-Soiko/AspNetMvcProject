@@ -116,12 +116,18 @@ public class ProfileController(
         }
 
         await signInManager.SignOutAsync();
-        await signInManager.SignInWithClaimsAsync(user, true,
-        [
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim("Avatar", user.ProfileImage ?? "")
-        ]);
+
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new("Avatar", user.ProfileImage ?? "")
+        };
+
+        var userRoles = await userManager.GetRolesAsync(user);
+        claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        await signInManager.SignInWithClaimsAsync(user, true, claims);
 
         return RedirectToAction("Index");
     }
@@ -129,7 +135,19 @@ public class ProfileController(
     [HttpDelete]
     public async Task<IActionResult> Delete()
     {
-        await userManager.DeleteAsync(await GetCurrentUserAsync());
+        var user = await GetCurrentUserAsync();
+
+        if (await userManager.IsInRoleAsync(user, "Admin"))
+        {
+            var admins = await userManager.GetUsersInRoleAsync("Admin");
+
+            if (admins.Count == 1 && admins.First().Id == user.Id)
+            {
+                return Json(new { success = false, message = "Неможливо видалити останнього адміністратора!" });
+            }
+        }
+
+        await userManager.DeleteAsync(user);
         await signInManager.SignOutAsync();
         return Json(new { success = true });
     }
