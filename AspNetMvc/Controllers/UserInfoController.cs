@@ -14,6 +14,7 @@ namespace AspNetMvc.Controllers
         UserSkillService userSkillService) : Controller
 
     {
+        [Authorize]
         public IActionResult Index()
         {
             var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
@@ -30,6 +31,7 @@ namespace AspNetMvc.Controllers
             );
         }
 
+        [Authorize]
         public IActionResult Details(Guid id)
         {
             var model = context.UserInfos
@@ -50,7 +52,7 @@ namespace AspNetMvc.Controllers
             return View(model);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Manager")]
         [HttpGet]
         public IActionResult Create()
         {
@@ -59,7 +61,7 @@ namespace AspNetMvc.Controllers
             return View(model);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Manager")]
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] UserInfoForm form, IFormFile[]? Photos, Dictionary<Guid, int> selectedSkills)
         {
@@ -95,7 +97,7 @@ namespace AspNetMvc.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Manager")]
         [HttpGet]
         public IActionResult Edit(Guid id)
         {
@@ -122,7 +124,7 @@ namespace AspNetMvc.Controllers
             return View(form);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Manager")]
         [HttpPost]
         public async Task<IActionResult> Edit(Guid id, [FromForm] UserInfoForm form, [FromForm] List<UserSkillForm>? userSkillForms, IFormFile[]? Photos)
         {
@@ -188,7 +190,7 @@ namespace AspNetMvc.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Manager")]
         [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -214,7 +216,7 @@ namespace AspNetMvc.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Manager")]
         [HttpPost]
         public async Task<IActionResult> SetMainImage(Guid id, string imageName)
         {
@@ -230,7 +232,7 @@ namespace AspNetMvc.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Manager")]
         [HttpPost]
         public async Task<IActionResult> UpdateSkills(Guid userId, Dictionary<Guid, int> selectedSkills)
         {
