@@ -46,14 +46,18 @@ public class AccountController(
         if (!result.Succeeded)
         {
             ModelState.AddModelError(nameof(form.Login), "Помилка при реєстрації.");
+
             return View(form);
         }
+
+        await userManager.AddToRoleAsync(user, "User");
 
         await signInManager.SignInWithClaimsAsync(user, true,
         [
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim("Avatar", user.ProfileImage ?? "")
+            new Claim("Avatar", user.ProfileImage ?? ""),
+            new Claim(ClaimTypes.Role, "User")
         ]);
 
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -94,19 +98,24 @@ public class AccountController(
             return View(form);
         }
 
-        await signInManager.SignInWithClaimsAsync(user, true,
-        [
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim("Avatar", user.ProfileImage ?? "")
-        ]);
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new("Avatar", user.ProfileImage ?? "")
+        };
+
+        var userRoles = await userManager.GetRolesAsync(user);
+        claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        await signInManager.SignInWithClaimsAsync(user, true, claims);
 
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
         {
             return Redirect(returnUrl);
         }
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction(returnUrl);
     }
 
     [HttpPost]
