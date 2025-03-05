@@ -32,10 +32,14 @@
                     }
                 </div>
 
+                
                 <div class="mt-auto flex justify-center space-x-4">
-                    <a asp-controller="UserInfo" asp-action="Details" asp-route-id="@user.Id" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md transition duration-300">
-                        Детальніше
-                    </a>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-controller="UserInfo" asp-action="Details" asp-route-id="@user.Id" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md transition duration-300">
+                            Детальніше
+                        </a>
+                    }
                 </div>
             </div>
         }
