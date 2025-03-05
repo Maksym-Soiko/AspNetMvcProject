@@ -1,0 +1,157 @@
+﻿@model List<User>
+
+@{
+	ViewData["Title"] = "Список користувачів";
+	var avatarSrc = ViewBag.AvatarSrc as string ?? "";
+}
+
+<div class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-2xl mt-10 relative">
+	<h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">@ViewData["Title"]</h1>
+
+	<div class="flex justify-end items-center mb-4 relative">
+		@if (User.Identity.IsAuthenticated)
+		{
+			<span class="text-sm font-medium text-gray-700 mr-4">@ViewBag.CurrentUserEmail</span>
+			<button id="userMenuBtn" class="bg-gray-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-600">
+				@if (!string.IsNullOrEmpty(avatarSrc))
+				{
+					<img src="@avatarSrc" alt="Аватар" class="w-12 h-12 rounded-full object-cover cursor-pointer" id="avatarImage" />
+				}
+			</button>
+
+			<div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+				<a asp-area="Auth" asp-controller="Profile" asp-action="Index"
+				class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+					Профіль
+				</a>
+				<form id="logoutForm" method="post" asp-area="Auth" asp-controller="Account" asp-action="Logout">
+					<button type="submit" class="block w-full text-left px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+						Вийти
+					</button>
+				</form>
+			</div>
+		}
+		else
+		{
+			<button id="userMenuBtn" class="bg-gray-500 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-600">
+				<i class="fas fa-user"></i>
+			</button>
+
+			<div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+				<a asp-area="Auth" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path"
+				class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+					Увійти
+				</a>
+				<a asp-area="Auth" asp-controller="Account" asp-action="Register" asp-route-returnUrl="@Context.Request.Path"
+				class="block px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-indigo-500 hover:text-white transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl">
+					Зареєструватися
+				</a>
+			</div>
+		}
+	</div>
+
+	<div class="mb-6 border-b border-gray-200">
+		<nav class="flex space-x-4 justify-center">
+			<a asp-controller="Home"
+			asp-action="Index"
+			class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Головна сторінка" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
+				Сторінка пошуку
+			</a>
+
+			@if (User.Identity.IsAuthenticated) {
+			<a asp-controller="UserInfo"
+			   asp-action="Index"
+			   class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Список працівників" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
+				Працівники
+			</a>
+
+			<a asp-controller="Skill"
+			   asp-action="Index"
+			   class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Список навичок" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
+				Навички
+			</a>
+			}
+
+			<a asp-controller="UserView"
+			asp-action="Index"
+			class="px-4 py-2 text-sm font-medium text-gray-700 rounded-t-lg hover:bg-gray-100 @(ViewData["Title"].ToString() == "Список користувачів" ? "bg-gray-100 border-b-2 border-indigo-600 text-indigo-600 font-bold" : "")">
+				Користувачі
+			</a>
+		</nav>
+	</div>
+
+	<div class="overflow-x-auto rounded-lg shadow">
+		<table class="min-w-full bg-white border border-gray-200 rounded-lg">
+			<thead class="bg-gray-100 border-b">
+				<tr>
+					<th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+						Аватарка
+					</th>
+					<th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+						Ім'я
+					</th>
+					<th class="px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+						Email
+					</th>
+					<th class="px-6 py-3 text text-sm font-semibold text-gray-700 uppercase tracking-wider">
+						Телефон
+					</th>
+					<th class="px-6 py-3 text text-sm font-semibold text-gray-700 uppercase tracking-wider">
+						Роль
+					</th>
+					<th class="px-6 py-3 text text-sm font-semibold text-gray-700 uppercase tracking-wider">
+						Дії
+					</th>
+				</tr>
+			</thead>
+			<tbody class="divide-y divide-gray-200">
+				@foreach (var item in Model)
+				{
+					<tr class="hover:bg-gray-50 transition">
+						<td class="px-6 py-4 text-center">
+							@if (!string.IsNullOrEmpty(item.ProfileImage))
+							{
+								<img src="@Url.Content(item.ProfileImage)" alt="@item.FullName" class="w-12 h-12 object-cover rounded-full mx-auto" />
+							}
+							else
+							{
+								<div class="w-12 h-12 bg-gray-300 rounded-full mx-auto flex items-center justify-center text-gray-600">
+									Немає
+								</div>
+							}
+						</td>
+						<td class="px-6 py-4 whitespace-nowrap text-gray-800 font-medium text-center">
+							@item.FullName
+						</td>
+						<td class="px-6 py-4 whitespace-nowrap text-gray-800 font-medium text-center">
+							@item.Email
+						</td>
+						<td class="px-6 py-4 whitespace-nowrap text-gray-800 font-medium text-center">
+							@item.PhoneNumber
+						</td>
+						<td class="px-6 py-4 whitespace-nowrap text-gray-800 font-medium text-center">
+							@(ViewBag.UserRoles.ContainsKey(item.Id) ? string.Join(", ", ViewBag.UserRoles[item.Id]) : "Немає ролі")
+						</td>
+						<td class="px-6 py-4 whitespace-nowrap text-center">
+							<a asp-controller="UserView"
+							   asp-action="Edit"
+							   asp-route-id="@item.Id"
+							   class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-lg shadow-md mr-4 transition duration-300">
+								Редагувати
+							</a>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+			document.getElementById("userMenuBtn").addEventListener("click", function() {
+			var menu = document.getElementById("userMenu");
+			menu.classList.toggle("hidden");
+		});
+	</script>
+}
