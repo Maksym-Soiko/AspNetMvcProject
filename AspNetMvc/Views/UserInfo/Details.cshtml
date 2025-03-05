@@ -77,7 +77,7 @@
                                 <input type="hidden" name="id" value="@Model.Id" />
                                 <input type="hidden" name="imageName" value="@imageUrl" />
 
-                                @if (User.Identity.IsAuthenticated)
+                                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                                 {
                                     <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-lg text-sm transition duration-300">
                                         Зробити головним
