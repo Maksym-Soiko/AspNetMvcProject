@@ -11,6 +11,7 @@ public class SkillController(
     SiteContext context,
     FileStorageService fileStorageService) : Controller
 {
+    [Authorize]
     public IActionResult Index()
     {
         var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
@@ -22,19 +23,20 @@ public class SkillController(
         return View(context.Skills.ToList());
     }
 
+    [Authorize]
     public IActionResult Details(Guid id)
     {
         return View(context.Skills.First(x => x.Id == id));
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin, Manager")]
     [HttpGet]
     public IActionResult Create()
     {
         return View(new SkillForm());
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin, Manager")]
     [HttpPost]
     public async Task<IActionResult> Create([FromForm] SkillForm form, IFormFile? Logo)
     {
@@ -57,7 +59,7 @@ public class SkillController(
         return RedirectToAction("Index");
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin, Manager")]
     [HttpGet]
     public IActionResult Edit(Guid id)
     {
@@ -73,7 +75,7 @@ public class SkillController(
         return View(form);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin, Manager")]
     [HttpPost]
     public async Task<IActionResult> Edit(Guid id, [FromForm] SkillForm form, IFormFile? Logo)
     {
@@ -103,7 +105,7 @@ public class SkillController(
         return View(form);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin, Manager")]
     [HttpPost]
     public async Task<IActionResult> Delete(Guid id)
     {
