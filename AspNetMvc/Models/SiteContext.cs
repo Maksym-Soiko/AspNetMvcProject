@@ -9,4 +9,5 @@ public class SiteContext(DbContextOptions options) : IdentityDbContext<User, Ide
     public virtual DbSet<UserInfoModel> UserInfos { get; set; }
     public virtual DbSet<SkillModel> Skills { get; set; }
     public virtual DbSet<UserSkillModel> UserSkills { get; set; }
+    public virtual DbSet<ReviewModel> Reviews { get; set; }
 }
