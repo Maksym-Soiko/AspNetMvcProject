@@ -22,6 +22,38 @@ namespace AspNetMvc.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("AspNetMvc.Models.ReviewModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserInfoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserInfoId");
+
+                    b.ToTable("Reviews", (string)null);
+                });
+
             modelBuilder.Entity("AspNetMvc.Models.SkillModel", b =>
                 {
                     b.Property<Guid>("Id")
@@ -50,7 +82,7 @@ namespace AspNetMvc.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Skills");
+                    b.ToTable("Skills", (string)null);
                 });
 
             modelBuilder.Entity("AspNetMvc.Models.User", b =>
@@ -137,6 +169,13 @@ namespace AspNetMvc.Migrations
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedByUserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -175,7 +214,7 @@ namespace AspNetMvc.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserInfos");
+                    b.ToTable("UserInfos", (string)null);
                 });
 
             modelBuilder.Entity("AspNetMvc.Models.UserSkillModel", b =>
@@ -199,7 +238,7 @@ namespace AspNetMvc.Migrations
 
                     b.HasIndex("UserInfoId");
 
-                    b.ToTable("UserSkills");
+                    b.ToTable("UserSkills", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -333,6 +372,25 @@ namespace AspNetMvc.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AspNetMvc.Models.ReviewModel", b =>
+                {
+                    b.HasOne("AspNetMvc.Models.User", "User")
+                        .WithMany("Reviews")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AspNetMvc.Models.UserInfoModel", "UserInfo")
+                        .WithMany("Reviews")
+                        .HasForeignKey("UserInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("UserInfo");
+                });
+
             modelBuilder.Entity("AspNetMvc.Models.UserSkillModel", b =>
                 {
                     b.HasOne("AspNetMvc.Models.SkillModel", "Skill")
@@ -403,8 +461,15 @@ namespace AspNetMvc.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("AspNetMvc.Models.User", b =>
+                {
+                    b.Navigation("Reviews");
+                });
+
             modelBuilder.Entity("AspNetMvc.Models.UserInfoModel", b =>
                 {
+                    b.Navigation("Reviews");
+
                     b.Navigation("UserSkills");
                 });
 #pragma warning restore 612, 618
