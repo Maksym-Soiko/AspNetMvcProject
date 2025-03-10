@@ -39,4 +39,11 @@ public class UserInfoModel
     public virtual ICollection<string>? Images { get; set; } = new List<string>();
 
     public virtual ICollection<UserSkillModel> UserSkills { get; set; } = new List<UserSkillModel>();
+
+    public Guid CreatedByUserId { get; set; }
+
+    public string CreatedByUserName { get; set; } = string.Empty;
+
+    public virtual ICollection<ReviewModel> Reviews { get; set; } = new List<ReviewModel>();
+
 }
