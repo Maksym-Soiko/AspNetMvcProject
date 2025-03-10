@@ -1,4 +1,5 @@
 using AspNetMvc.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -7,9 +8,10 @@ namespace AspNetMvc.Controllers;
 
 public class HomeController(
         ILogger<HomeController> logger,
-        SiteContext context) : Controller
+        SiteContext context,
+        UserManager<User> userManager) : Controller
 {
-    public IActionResult Index()
+    public IActionResult Index(Guid id)
     {
         var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
         ViewBag.CurrentUserEmail = currentUserEmail;
@@ -18,6 +20,7 @@ public class HomeController(
         ViewBag.AvatarSrc = avatarSrc;
 
         var users = context.UserInfos
+            .Include(x => x.Reviews)
             .Include(x => x.UserSkills)
             .ThenInclude(x => x.Skill)
             .ToList();
@@ -32,6 +35,7 @@ public class HomeController(
     public IActionResult Search(string text, string[] professions, string[] skills)
     {
         var users = context.UserInfos
+            .Include(x => x.Reviews)
             .Include(x => x.UserSkills)
             .ThenInclude(x => x.Skill)
             .AsQueryable();
