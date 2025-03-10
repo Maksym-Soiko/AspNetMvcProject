@@ -1,9 +1,11 @@
-﻿@model AspNetMvc.Models.UserInfoModel
+﻿@using System.Security.Claims
+@model AspNetMvc.Models.UserInfoModel
 
 @{
     ViewData["Title"] = Model.Name;
-    var userSkills = ViewData["UserSkills"] as List<UserSkillModel>;
-    var allSkills = ViewData["Skills"] as List<SkillModel>;
+    var userSkills = ViewData["UserSkills"] as List<UserSkillModel> ?? new List<UserSkillModel>();
+    var allSkills = ViewData["Skills"] as List<SkillModel> ?? new List<SkillModel>();
+    var reviews = ViewData["Reviews"] as List<ReviewModel> ?? new List<ReviewModel>();
 }
 
 <div class="max-w-3xl mx-auto p-8 bg-white shadow-lg rounded-2xl mt-10">
@@ -21,7 +23,7 @@
         <span class="font-semibold">@Model.Profession</span>
     </div>
 
-    @if (userSkills != null && userSkills.Any())
+    @if (userSkills.Any())
     {
         <div class="mt-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-3 text-center">Навички</h2>
@@ -77,7 +79,7 @@
                                 <input type="hidden" name="id" value="@Model.Id" />
                                 <input type="hidden" name="imageName" value="@imageUrl" />
 
-                                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                                @if (User.IsInRole("Admin") || User.IsInRole("Manager") || Model.CreatedByUserId.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
                                 {
                                     <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-lg text-sm transition duration-300">
                                         Зробити головним
@@ -97,11 +99,107 @@
         </div>
     }
 
+    @if (reviews != null && reviews.Any())
+    {
+        <div class="mt-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-6 text-center">Відгуки</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach (var review in reviews)
+                {
+                    <div class="bg-white p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="flex-shrink-0">
+                                <span class="text-xl font-semibold text-gray-700">
+                                    @if (review.User != null)
+                                    {
+                                        @review.User.FullName
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-500">Невідомий користувач</span>
+                                    }
+                                </span>
+                            </div>
+                            <div class="ml-4 text-sm text-gray-500">
+                                @review.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-gray-700 text-base">
+                                <span class="review-text-truncated">
+                                    @review.Text.Substring(0, Math.Min(review.Text.Length, 100))...
+                                </span>
+                                <span class="review-text-full hidden">
+                                    @review.Text
+                                </span>
+                            </p>
+                            <button class="text-blue-500 text-sm mt-2" onclick="toggleReviewText(this)">Читати більше</button>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                @for (int i = 0; i < review.Rating; i++)
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-yellow-500">
+                                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                    </svg>
+                                }
+                            </div>
+                            <div class="text-gray-500 text-sm">
+                                Оцінка: @review.Rating
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="w-full h-16 bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 text-lg font-medium mt-4">
+            Немає відгуків
+        </div>
+    }
+
     <div class="flex justify-center mt-6">
+        @if (!(bool)ViewData["HasReviewed"])
+        {
+            <a asp-controller="Review"
+               asp-action="Add"
+               asp-route-userInfoId="@Model.Id"
+               class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300">
+                Залишити відгук
+            </a>
+        }
+        else
+        {
+            <button class="bg-gray-500 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 cursor-not-allowed" disabled>
+                Ви вже залишили відгук
+            </button>
+        }
+
         <a asp-controller="Home"
            asp-action="Index"
-           class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300">
+           class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ml-4">
             Назад
         </a>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function toggleReviewText(button) {
+            const reviewTextFull = button.previousElementSibling.querySelector('.review-text-full');
+            const reviewTextTruncated = button.previousElementSibling.querySelector('.review-text-truncated');
+
+            if (reviewTextFull.classList.contains('hidden')) {
+                reviewTextFull.classList.remove('hidden');
+                reviewTextTruncated.classList.add('hidden');
+                button.textContent = "Згорнути";
+            } else {
+                reviewTextFull.classList.add('hidden');
+                reviewTextTruncated.classList.remove('hidden');
+                button.textContent = "Читати більше";
+            }
+        }
+    </script>
+}
