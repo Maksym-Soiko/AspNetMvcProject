@@ -2,14 +2,17 @@
 using AspNetMvc.Models.Forms;
 using AspNetMvc.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AspNetMvc.Controllers
 {
     public class UserInfoController(
         ILogger<UserInfoController> logger,
         SiteContext context,
+        UserManager<User> userManager,
         FileStorageService fileStorage,
         UserSkillService userSkillService) : Controller
 
@@ -17,18 +20,32 @@ namespace AspNetMvc.Controllers
         [Authorize]
         public IActionResult Index()
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
-            ViewBag.CurrentUserEmail = currentUserEmail;
-
             var avatarSrc = User.Claims.FirstOrDefault(x => x.Type == "Avatar")?.Value ?? "";
+
+            ViewBag.CurrentUserEmail = currentUserEmail;
             ViewBag.AvatarSrc = avatarSrc;
 
-            return View(context
-                .UserInfos
+            IQueryable<UserInfoModel> userInfosQuery = context.UserInfos
                 .Include(x => x.UserSkills)
-                .ThenInclude(x => x.Skill)
-                .ToList()
-            );
+                .ThenInclude(x => x.Skill);
+
+            bool isAdminOrManager = User.IsInRole("Admin") || User.IsInRole("Manager");
+
+            var userInfos = isAdminOrManager
+                ? userInfosQuery.ToList()
+                : userInfosQuery.Where(x => x.CreatedByUserId.ToString() == currentUserId).ToList();
+
+            foreach (var userInfo in userInfos)
+            {
+                userInfo.CreatedByUserName = context.Users
+                    .Where(u => u.Id == userInfo.CreatedByUserId)
+                    .Select(u => u.UserName)
+                    .FirstOrDefault();
+            }
+
+            return View(userInfos);
         }
 
         [Authorize]
@@ -44,15 +61,26 @@ namespace AspNetMvc.Controllers
                 return NotFound();
             }
 
+            var reviews = context.Reviews
+                .Include(r => r.User)
+                .Where(r => r.UserInfo.Id == id)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToList();
+
             var userSkills = model.UserSkills.ToList();
 
-            ViewData["UserSkills"] = userSkills;
-            ViewData["Skills"] = context.Skills.ToList();
+            var currentUser = userManager.GetUserAsync(User).Result;
+            var hasReviewed = reviews.Any(r => r.User.Id == currentUser.Id);
+
+            ViewData["HasReviewed"] = hasReviewed;
+            ViewData["UserSkills"] = userSkills ?? new List<UserSkillModel>();
+            ViewData["Skills"] = context.Skills.ToList() ?? new List<SkillModel>();
+            ViewData["Reviews"] = reviews ?? new List<ReviewModel>();
 
             return View(model);
         }
 
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize]
         [HttpGet]
         public IActionResult Create()
         {
@@ -61,7 +89,7 @@ namespace AspNetMvc.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] UserInfoForm form, IFormFile[]? Photos, Dictionary<Guid, int> selectedSkills)
         {
@@ -70,10 +98,15 @@ namespace AspNetMvc.Controllers
                 return View(form);
             }
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUserEmail = User.Identity.IsAuthenticated ? User.Identity.Name : null;
+
             var model = new UserInfoModel
             {
                 Id = Guid.NewGuid(),
-                MainImage = "default.jpg"
+                MainImage = "default.jpg",
+                CreatedByUserId = Guid.Parse(currentUserId),
+                CreatedByUserName = currentUserEmail
             };
             form.Update(model, "wwwroot/user_info_uploads");
 
@@ -97,7 +130,7 @@ namespace AspNetMvc.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize]
         [HttpGet]
         public IActionResult Edit(Guid id)
         {
@@ -124,7 +157,7 @@ namespace AspNetMvc.Controllers
             return View(form);
         }
 
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Edit(Guid id, [FromForm] UserInfoForm form, [FromForm] List<UserSkillForm>? userSkillForms, IFormFile[]? Photos)
         {
@@ -216,23 +249,30 @@ namespace AspNetMvc.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> SetMainImage(Guid id, string imageName)
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var model = await context.UserInfos.FindAsync(id);
+
             if (model == null || model.Images == null || !model.Images.Contains(imageName))
             {
                 return NotFound();
             }
 
+            if (model.CreatedByUserId.ToString() != currentUserId && !User.IsInRole("Admin") && !User.IsInRole("Manager"))
+            {
+                return Forbid();
+            }
+
             model.MainImage = imageName;
             await context.SaveChangesAsync();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Details", new { id });
         }
 
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> UpdateSkills(Guid userId, Dictionary<Guid, int> selectedSkills)
         {
