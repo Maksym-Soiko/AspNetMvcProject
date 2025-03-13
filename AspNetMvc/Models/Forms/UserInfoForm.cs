@@ -21,6 +21,8 @@ namespace AspNetMvc.Models.Forms
             {
                 ProfessionId = Professions.FindIndex(x => x == model.Profession);
             }
+            Lat = model.Lat;
+            Lng = model.Lng;
         }
 
         public void Update(UserInfoModel model)
@@ -34,6 +36,8 @@ namespace AspNetMvc.Models.Forms
             model.Specialty = Specialty;
             model.YearsOfExperience = YearsOfExperience;
             model.Profession = Professions[ProfessionId ?? 0];
+            model.Lat = Lat;
+            model.Lng = Lng;
         }
 
         public void Update(UserInfoModel model, string uploadsFolder)
@@ -72,6 +76,9 @@ namespace AspNetMvc.Models.Forms
                     }
                 }
             }
+
+            model.Lat = Lat;
+            model.Lng = Lng;
         }
 
         [DisplayName("Повне ім'я")]
@@ -117,6 +124,10 @@ namespace AspNetMvc.Models.Forms
         [DisplayName("Професія")]
         [Required(ErrorMessage = "Оберіть з варіантів")]
         public int? ProfessionId { get; set; }
+
+        public float? Lat { get; set; }
+
+        public float? Lng { get; set; }
 
         [DisplayName("Зображення")]
         public List<IFormFile>? Images { get; set; }
