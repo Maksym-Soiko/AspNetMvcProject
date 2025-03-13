@@ -79,3 +79,7 @@
     <input type="file" name="Images" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition" />
     @Html.ValidationMessageFor(x => x.Images, null, new { @class = "text-red-500 text-sm" })
 </div>
+
+<div class="map-edit" id="map"></div>
+<input type="text" id="latitude" asp-for="Lat">
+<input type="text" id="longitude" asp-for="Lng">
