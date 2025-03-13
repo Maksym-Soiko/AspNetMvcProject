@@ -1,4 +1,5 @@
 ﻿@model List<UserInfoModel>
+@using Newtonsoft.Json
 @{
     ViewData["Title"] = "Сторінка пошуку";
     var avatarSrc = ViewBag.AvatarSrc as string ?? "";
@@ -123,10 +124,87 @@
     <div id="searchResults" class="flex justify-center">
         @await Html.PartialAsync("_UserList", Model)
     </div>
+    <div class="map-edit mt-20" id="map"></div>
 </div>
+
+@section Head {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="" />
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+}
 
 @section Scripts {
     <script>
+        let map;
+        let markersGroup;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            initializeMap();
+            loadMarkers();
+        });
+
+        function initializeMap() {
+            if (!map) {
+                map = L.map('map').setView([48.3794, 31.1656], 5);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                markersGroup = L.layerGroup().addTo(map);
+            }
+        }
+
+        function loadMarkers() {
+            let employeeLocations = @Html.Raw(JsonConvert.SerializeObject(Model.Select(e => new { e.Lat, e.Lng, e.Name, e.Profession, AverageRating = e.Reviews.Any() ? e.Reviews.Average(r => r.Rating) : 0.0 })));
+
+            if (Array.isArray(employeeLocations)) {
+                employeeLocations.forEach(function (employee) {
+                    let lat = employee.Lat;
+                    let lng = employee.Lng;
+
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        let popupContent = `<b>${employee.Name}</b><br>Професія: ${employee.Profession}<br>Середній рейтинг: <i class="fas fa-star" style="color: gold;"></i> ${employee.AverageRating.toFixed(2)}`;
+                        let marker = L.marker([lat, lng]).bindPopup(popupContent);
+
+                        markersGroup.addLayer(marker);
+                    } else {
+                        console.warn("Некоректні координати:", employee, "Lat:", employee.Lat, "Lng:", employee.Lng);
+                    }
+                });
+            } else {
+                console.error("Помилка: employeeLocations не є масивом", employeeLocations);
+            }
+        }
+
+        function updateMapMarkers(filteredEmployees) {
+            console.log("Отримані дані для маркерів:", filteredEmployees);
+
+            markersGroup.clearLayers();
+
+            if (!Array.isArray(filteredEmployees)) {
+                console.error("Очікував масив, але отримав:", filteredEmployees);
+                return;
+            }
+
+            filteredEmployees.forEach(function (employee) {
+                let lat = parseFloat(employee.lat);
+                let lng = parseFloat(employee.lng);
+
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    let popupContent = `<b>${employee.name}</b><br>Професія: ${employee.profession}<br>Рейтинг: <i class="fas fa-star" style="color: gold;"></i> ${employee.averageRating.toFixed(2)}`;
+                    let marker = L.marker([lat, lng]).bindPopup(popupContent);
+                    markersGroup.addLayer(marker);
+                } else {
+                    console.warn("Некоректні координати:", employee);
+                }
+            });
+        }
+
         document.getElementById("searchForm").addEventListener("submit", function (event) {
             event.preventDefault();
             let formData = new FormData(this);
@@ -138,7 +216,13 @@
             .then(response => response.text())
             .then(html => {
                 document.getElementById("searchResults").innerHTML = html;
-            });
+                return fetch(`/Home/GetFilteredUsers?${new URLSearchParams(formData)}`);
+            })
+            .then(response => response.json())
+            .then(filteredEmployees => {
+                updateMapMarkers(filteredEmployees);
+            })
+            .catch(error => console.error("Помилка отримання даних:", error));
         });
 
         document.getElementById("resetProfessions").addEventListener("click", function() {
