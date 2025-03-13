@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace AspNetMvc.Models;
 
@@ -46,4 +47,7 @@ public class UserInfoModel
 
     public virtual ICollection<ReviewModel> Reviews { get; set; } = new List<ReviewModel>();
 
+    public float? Lat { get; set; }
+
+    public float? Lng { get; set; }
 }
