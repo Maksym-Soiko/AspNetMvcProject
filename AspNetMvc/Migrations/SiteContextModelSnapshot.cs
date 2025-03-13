@@ -187,6 +187,12 @@ namespace AspNetMvc.Migrations
                     b.PrimitiveCollection<string>("Images")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<float?>("Lat")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("Lng")
+                        .HasColumnType("real");
+
                     b.Property<string>("MainImage")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
